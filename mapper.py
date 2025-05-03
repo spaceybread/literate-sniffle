@@ -1,16 +1,31 @@
+import networkx as nx
+import matplotlib.pyplot as plt
 from string import ascii_lowercase
+from collections import defaultdict
 
-starts = {l : [] for l in ascii_lowercase}
-ends = {l : [] for l in ascii_lowercase}
-
-
+wds = []
 with open("filtered_list.txt") as f:
-  for xi in f:
-    x = xi.strip()
-    starts[x[0]].append(x)
-    ends[x[-1]].append(x)
+    for line in f:
+        w = line.strip()
+        if w: wds.append(w)
 
+G = nx.DiGraph()
 
-for a in starts.keys():
-    print(starts[a])
-    print(ends[a])
+starts = defaultdict(list)
+for w in wds: starts[w[0]].append(w)
+
+for w in wds:
+    last_char = w[-1]
+    for target in starts[last_char]: G.add_edge(w, target)
+
+pos = nx.spring_layout(G, seed=1, k=0.1, iterations=50)
+plt.figure(figsize=(12, 8))
+nx.draw(G,
+        pos,
+        with_labels = True,
+        node_color = 'lightblue',
+        edge_color = 'gray',
+        node_size = 500,
+        font_size = 10,
+        arrowsize = 10)
+plt.show()
